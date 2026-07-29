@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.0.2](https://github.com/punkch/form-forge/compare/form-forge-v1.0.1...form-forge-v1.0.2) (2026-07-29)
+
+
+### Bug Fixes
+
+* **attribution:** credit CC BY 4.0 ODK Documentation content properly ([df19583](https://github.com/punkch/form-forge/commit/df19583f57b6321caddf3d6f2a4e206db6a4f838))
+* **central:** import never-published forms from their Central drafts ([1c13e02](https://github.com/punkch/form-forge/commit/1c13e02e9b070685dc92513de1f0a00144d20393))
+* **perf:** stop the ~5 MB web-forms engine from blocking first paint ([b4b3c01](https://github.com/punkch/form-forge/commit/b4b3c015b7ea4fdc2d3c679cd9da7dc3f2fce226))
+
+
+### Continuous Integration
+
+* **a11y:** detach the preview server's stdio so the audit job's serve step can end ([68580e6](https://github.com/punkch/form-forge/commit/68580e6058542b3cc42e261c40a516217148476b))
+
 ## [1.0.1](https://github.com/punkch/form-forge/compare/form-forge-v1.0.0...form-forge-v1.0.1) (2026-07-23)
 
 
