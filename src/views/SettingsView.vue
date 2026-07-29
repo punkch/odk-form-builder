@@ -293,6 +293,16 @@ const storageText = computed((): string => {
         <p class="settings-line" data-testid="settings-about-storage">
           {{ storageText }}
         </p>
+        <p class="settings-line" data-testid="settings-about-attribution">
+          {{ t('appSettings.about.attribution') }}
+          <a href="https://docs.getodk.org/" target="_blank" rel="noopener noreferrer">
+            {{ t('appSettings.about.attributionLink') }}
+          </a>
+          ·
+          <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
+            {{ t('appSettings.about.attributionLicense') }}
+          </a>
+        </p>
         <!-- Extension point: a manual "check for updates" action needs
              useSwUpdate (src/pwa/registerSW.ts) to expose a check — omitted
              deliberately (docs/specs/2026-07-10-2005-settings-page/shape.md). -->

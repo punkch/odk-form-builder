@@ -10,7 +10,8 @@
         "noMatches": "No question types match your search.",
         "back": "All question types",
         "attribution": "Adapted from the ODK Documentation.",
-        "attributionLink": "docs.getodk.org"
+        "attributionLink": "docs.getodk.org",
+        "attributionLicense": "CC BY 4.0"
       },
       "drawer": {
         "whatItDoes": "What it does",

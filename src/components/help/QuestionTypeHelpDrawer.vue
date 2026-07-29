@@ -14,7 +14,7 @@ import GuideContent from '@/components/help/GuideContent.vue'
 import QuestionTypeHelpContent from '@/components/help/QuestionTypeHelpContent.vue'
 import { useTypeLabels } from '@/composables/useTypeLabels'
 import { getQuestionType } from '@/core/registry/question-types'
-import { guideHelp, ODK_QUESTION_TYPES_DOCS_URL } from '@/help/content'
+import { guideHelp, ODK_DOCS_LICENSE_URL, ODK_QUESTION_TYPES_DOCS_URL } from '@/help/content'
 import { GUIDE_KEYS } from '@/help/guides'
 import { groupTypesBySearch, matchesFields } from '@/help/search'
 import { useAppI18n } from '@/i18n'
@@ -172,6 +172,10 @@ const backToList = (): void => {
         {{ t('help.ui.reference.attribution') }}
         <a :href="ODK_QUESTION_TYPES_DOCS_URL" target="_blank" rel="noopener noreferrer">
           {{ t('help.ui.reference.attributionLink') }}
+        </a>
+        ·
+        <a :href="ODK_DOCS_LICENSE_URL" target="_blank" rel="noopener noreferrer">
+          {{ t('help.ui.reference.attributionLicense') }}
         </a>
       </p>
     </template>

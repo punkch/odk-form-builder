@@ -202,6 +202,12 @@ pnpm audit:a11y [--url …] [--theme …] [--contrast …] [--accent id|all]    
 
 ## Documentation index
 
+- `NOTICE.md` — third-party content attribution (in-app help + type
+  descriptions are adapted from the ODK Documentation, **CC BY 4.0** —
+  credited in the help-drawer footer and Settings → About; odk-tokens/preset
+  mirror `@getodk/web-forms` Apache-2.0; test fixtures from the ODK
+  ecosystem). Keep it, the README "License & attribution" section and the
+  in-app credits in sync when adding ODK-derived content.
 - `docs/product/` — mission, roadmap (Phase 1 + delivered Phase 2 + Phase 3
   incl. delivered Central integration), tech-stack (pins + rationale).
 - `docs/specs/<YYYY-MM-DD-HHMM-slug>/` — one folder per delivered work

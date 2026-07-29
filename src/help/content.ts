@@ -270,6 +270,9 @@ export const guideHelp = {
 
 export const ODK_QUESTION_TYPES_DOCS_URL = 'https://docs.getodk.org/form-question-types/'
 
+/** License of the ODK Documentation the help content is adapted from. */
+export const ODK_DOCS_LICENSE_URL = 'https://creativecommons.org/licenses/by/4.0/'
+
 /**
  * "Read more" target for a type: a bare `docsAnchor` is a fragment on the
  * question-types docs page; types documented elsewhere carry an absolute URL.

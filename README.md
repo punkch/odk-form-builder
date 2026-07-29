@@ -334,6 +334,14 @@ package has a spec folder under [`docs/specs/`](docs/specs/) and a browser
 verification log under [`docs/verification/`](docs/verification/).
 [`CLAUDE.md`](CLAUDE.md) is the repository index for AI-assisted work.
 
-## License
+## License & attribution
 
-See [LICENSE](LICENSE).
+The code is MIT-licensed — see [LICENSE](LICENSE).
+
+The in-app help content and question-type reference are adapted from the
+[ODK Documentation](https://docs.getodk.org/), licensed under
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); the design tokens
+and theme preset mirror [`@getodk/web-forms`](https://github.com/getodk/web-forms)
+(Apache-2.0). See [NOTICE.md](NOTICE.md) for the full third-party content
+attribution. Form Forge is a community project and is not affiliated with or
+endorsed by ODK.

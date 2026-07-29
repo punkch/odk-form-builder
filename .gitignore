@@ -817,3 +817,6 @@ test-results
 
 # local Caddy CORS proxy (scripts/central-cors-proxy.sh)
 .local/
+
+# Real-world sample forms kept locally as import stress fixtures (unknown/mixed licenses — not redistributed)
+tests/golden/complex/
