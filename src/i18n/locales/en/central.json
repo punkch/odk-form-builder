@@ -2,7 +2,7 @@
   "central": {
     "servers": {
       "heading": "ODK Central servers",
-      "description": "Connect Form Forge to one or more ODK Central servers to publish drafts and import published forms. This is the only feature that leaves this device — a server is contacted only when you ask.",
+      "description": "Connect Form Forge to one or more ODK Central servers to publish drafts and import forms. This is the only feature that leaves this device — a server is contacted only when you ask.",
       "empty": "No servers yet. Add one to start publishing to and importing from ODK Central.",
       "addServer": "Add server",
       "editServer": "Edit server",
@@ -102,15 +102,16 @@
     },
     "import": {
       "title": "Import from ODK Central",
-      "intro": "Pull a published form and its attachments from an ODK Central project into your library.",
+      "intro": "Pull a form and its attachments from an ODK Central project into your library.",
       "serverLabel": "Server",
       "serverPlaceholder": "Choose a server",
       "projectLabel": "Project",
       "projectPlaceholder": "Choose a project",
       "formLabel": "Form",
       "formPlaceholder": "Choose a form",
-      "publishedOnly": "Only published forms can be imported. Drafts are not listed.",
-      "noForms": "This project has no published forms.",
+      "draftNote": "Forms marked \"unpublished\" have never been published — importing one pulls its current draft.",
+      "unpublishedTag": "(unpublished)",
+      "noForms": "This project has no forms.",
       "confirm": "Import",
       "importing": "Importing…",
       "imported": "Imported \"{name}\" from ODK Central.",

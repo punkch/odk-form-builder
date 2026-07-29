@@ -72,7 +72,7 @@
     },
     "central": {
       "title": "Publicar en & importar desde ODK Central",
-      "summary": "Envíe el borrador de un formulario a su proyecto de ODK Central y traiga formularios publicados de vuelta a su biblioteca. Esto es totalmente opcional y está desactivado hasta que agregue un servidor — nada contacta a un servidor a menos que usted lo pida, y sus credenciales permanecen cifradas en este dispositivo.",
+      "summary": "Envíe el borrador de un formulario a su proyecto de ODK Central y traiga formularios de vuelta a su biblioteca. Esto es totalmente opcional y está desactivado hasta que agregue un servidor — nada contacta a un servidor a menos que usted lo pida, y sus credenciales permanecen cifradas en este dispositivo.",
       "steps": {
         "1": "En Configuración (el engranaje en la biblioteca de formularios) → «Servidores ODK Central» → «Agregar servidor», asígnele un nombre visible y la URL base (https://, o http:// solo para localhost), luego agregue su correo electrónico y contraseña y elija «Guardar contraseña». Sus credenciales permanecen cifradas en este dispositivo.",
         "2": "Abra un formulario y haga clic en Central en la barra de herramientas del editor para mostrar el panel Central — el centro para publicar este formulario y hacer seguimiento de dónde se ha enviado.",
@@ -81,7 +81,7 @@
         "5": "Publicar solo crea o actualiza un borrador en Central. La revisión y la publicación en vivo de ese borrador permanecen deliberadamente en la propia interfaz web de Central, para que la revisión ocurra allí.",
         "6": "El panel enumera cada destino en el que ha publicado, cada uno con un chip de estado — «Actualizado», «Modificado» o «No comparado» — para que volver a publicar o actualizar esté a un clic de distancia.",
         "7": "Use «Verificar servidor» en un destino para comparar su último envío con lo que Central tiene ahora — si las versiones coinciden, difieren, o el formulario ya no está allí.",
-        "8": "Para recuperar un formulario, abra el panel Central de la biblioteca («Importar formulario» → «Desde ODK Central»), elija servidor → proyecto → formulario, y su definición publicada junto con sus adjuntos se descargan en su biblioteca."
+        "8": "Para recuperar un formulario, abra el panel Central de la biblioteca («Importar formulario» → «Desde ODK Central»), elija servidor → proyecto → formulario, y su definición junto con sus adjuntos se descargan en su biblioteca — un formulario marcado como «sin publicar» importa su borrador actual."
       }
     },
     "backup": {

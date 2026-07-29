@@ -120,8 +120,10 @@ Delivered:
   Register multiple ODK Central servers (App Settings); publish the open
   form's draft (definition + attachments) to a chosen project, surfacing
   Central's warnings verbatim with update-existing / bump-version recovery on
-  a 409 collision; import a published form back through the existing import
-  pipeline (replace-or-copy on collision); per-form publish targets remember
+  a 409 collision; import a form back through the existing import
+  pipeline (replace-or-copy on collision; since 2026-07-29 never-published
+  forms are listed with an "unpublished" tag and import their current draft —
+  `docs/specs/2026-07-29-1120-central-draft-import/`); per-form publish targets remember
   destinations for one-click re-deploys across dev/staging/prod. Credentials
   live in a passphrase-derived WebCrypto vault (non-extractable AES-GCM, key
   and session tokens memory-only); server/vault/target data is device-local and

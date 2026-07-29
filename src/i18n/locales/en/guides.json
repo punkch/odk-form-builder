@@ -72,7 +72,7 @@
     },
     "central": {
       "title": "Publishing to & importing from ODK Central",
-      "summary": "Send a form's draft to your ODK Central project and pull published forms back into your library. This is entirely optional and off until you add a server — nothing contacts a server unless you ask, and your credentials stay encrypted on this device.",
+      "summary": "Send a form's draft to your ODK Central project and pull forms back into your library. This is entirely optional and off until you add a server — nothing contacts a server unless you ask, and your credentials stay encrypted on this device.",
       "steps": {
         "1": "In Settings (gear on the Forms library) → \"ODK Central servers\" → \"Add server\", give it a display name and the base URL (https://, or http:// only for localhost), then add your email and password and choose \"Save password\". Your credentials stay encrypted on this device.",
         "2": "Open a form and click Central in the editor toolbar to reveal the Central panel — the hub for publishing this form and for tracking where it has been sent.",
@@ -81,7 +81,7 @@
         "5": "Publishing only creates or updates a Central draft. Reviewing and publishing that draft live stays in Central's own web UI, on purpose, so review happens there.",
         "6": "The panel lists every destination you have published to, each with a freshness chip — \"Up to date\", \"Changed\", or \"Not compared\" — so a re-publish or update is one click away.",
         "7": "Use \"Check server\" on a destination to compare your last upload against what Central holds now — whether the versions match, differ, or the form is no longer there.",
-        "8": "To pull a form back, open the library's Central panel (\"Import form\" → \"From ODK Central\"), pick server → project → form, and its published definition and attachments download into your library."
+        "8": "To pull a form back, open the library's Central panel (\"Import form\" → \"From ODK Central\"), pick server → project → form, and its definition and attachments download into your library — a form marked \"unpublished\" imports its current draft."
       }
     },
     "backup": {

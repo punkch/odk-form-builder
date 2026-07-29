@@ -71,6 +71,8 @@ export interface CentralClient {
   uploadDraftAttachment (token: string, projectId: number, xmlFormId: string, body: { name: string, blob: Blob, contentType: string }): Promise<void>
   /** `GET .../forms/:xmlFormId/draft/attachments` — the draft's expected attachments. */
   listDraftAttachments (token: string, projectId: number, xmlFormId: string): Promise<CentralAttachmentDescriptor[]>
+  /** `GET .../forms/:xmlFormId/draft/attachments/:name` — a draft attachment blob. */
+  downloadDraftAttachment (token: string, projectId: number, xmlFormId: string, name: string): Promise<Blob>
 }
 
 /** Map a resolved non-OK response status to a `CentralError` kind. */
@@ -160,6 +162,8 @@ export const createCentralClient = ({
   }
 
   const forms = (projectId: number): string => `/v1/projects/${projectId}/forms`
+  const form = (projectId: number, xmlFormId: string): string =>
+    `${forms(projectId)}/${encodeURIComponent(xmlFormId)}`
 
   return {
     createSession: async (email, password) => {
@@ -186,23 +190,23 @@ export const createCentralClient = ({
     },
 
     getPublishedFormXml: async (token, projectId, xmlFormId) => {
-      const response = await send(`${forms(projectId)}/${encodeURIComponent(xmlFormId)}.xml`, { token })
+      const response = await send(`${form(projectId, xmlFormId)}.xml`, { token })
       return response.text()
     },
 
     getDraftFormXml: async (token, projectId, xmlFormId) => {
-      const response = await send(`${forms(projectId)}/${encodeURIComponent(xmlFormId)}/draft.xml`, { token })
+      const response = await send(`${form(projectId, xmlFormId)}/draft.xml`, { token })
       return response.text()
     },
 
     listPublishedAttachments: async (token, projectId, xmlFormId) => {
-      const response = await send(`${forms(projectId)}/${encodeURIComponent(xmlFormId)}/attachments`, { token })
+      const response = await send(`${form(projectId, xmlFormId)}/attachments`, { token })
       return coerceAttachmentDescriptorList(await readJson(response))
     },
 
     downloadPublishedAttachment: async (token, projectId, xmlFormId, name) => {
       const response = await send(
-        `${forms(projectId)}/${encodeURIComponent(xmlFormId)}/attachments/${encodeURIComponent(name)}`,
+        `${form(projectId, xmlFormId)}/attachments/${encodeURIComponent(name)}`,
         { token }
       )
       return response.blob()
@@ -219,7 +223,7 @@ export const createCentralClient = ({
     },
 
     updateDraft: async (token, projectId, xmlFormId, xml) => {
-      const response = await send(`${forms(projectId)}/${encodeURIComponent(xmlFormId)}/draft?ignoreWarnings=true`, {
+      const response = await send(`${form(projectId, xmlFormId)}/draft?ignoreWarnings=true`, {
         method: 'POST',
         token,
         contentType: 'application/xml',
@@ -230,14 +234,22 @@ export const createCentralClient = ({
 
     uploadDraftAttachment: async (token, projectId, xmlFormId, { name, blob, contentType }) => {
       await send(
-        `${forms(projectId)}/${encodeURIComponent(xmlFormId)}/draft/attachments/${encodeURIComponent(name)}`,
+        `${form(projectId, xmlFormId)}/draft/attachments/${encodeURIComponent(name)}`,
         { method: 'POST', token, contentType, body: blob }
       )
     },
 
     listDraftAttachments: async (token, projectId, xmlFormId) => {
-      const response = await send(`${forms(projectId)}/${encodeURIComponent(xmlFormId)}/draft/attachments`, { token })
+      const response = await send(`${form(projectId, xmlFormId)}/draft/attachments`, { token })
       return coerceAttachmentDescriptorList(await readJson(response))
+    },
+
+    downloadDraftAttachment: async (token, projectId, xmlFormId, name) => {
+      const response = await send(
+        `${form(projectId, xmlFormId)}/draft/attachments/${encodeURIComponent(name)}`,
+        { token }
+      )
+      return response.blob()
     },
   }
 }

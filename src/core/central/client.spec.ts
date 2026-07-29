@@ -197,6 +197,17 @@ describe('createCentralClient — requests', () => {
     expect(calls[0].url).toBe('http://c/v1/projects/3/forms/survey/draft/attachments')
     expect(atts[0].exists).toBe(false)
   })
+
+  it('downloadDraftAttachment GETs the draft attachment path and returns the blob body', async () => {
+    const { fetchImpl, calls } = recordingFetch(() =>
+      new Response(new Blob(['a,b\n1,2'], { type: 'text/csv' }), { status: 200 }))
+    const blob = await createCentralClient({ baseUrl: 'http://c', fetchImpl })
+      .downloadDraftAttachment('tok', 3, 'survey', 'a b.csv')
+    expect(calls[0].url).toBe('http://c/v1/projects/3/forms/survey/draft/attachments/a%20b.csv')
+    expect(calls[0].init.method).toBe('GET')
+    expect(headersOf(calls[0]).Authorization).toBe('Bearer tok')
+    expect(await blob.text()).toBe('a,b\n1,2')
+  })
 })
 
 describe('createCentralClient — malformed success bodies', () => {

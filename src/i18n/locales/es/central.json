@@ -2,7 +2,7 @@
   "central": {
     "servers": {
       "heading": "Servidores ODK Central",
-      "description": "Conecte Form Forge a uno o más servidores ODK Central para publicar borradores e importar formularios publicados. Esta es la única función que sale de este dispositivo: un servidor solo se contacta cuando usted lo solicita.",
+      "description": "Conecte Form Forge a uno o más servidores ODK Central para publicar borradores e importar formularios. Esta es la única función que sale de este dispositivo: un servidor solo se contacta cuando usted lo solicita.",
       "empty": "Aún no hay servidores. Agregue uno para empezar a publicar en ODK Central e importar formularios desde allí.",
       "addServer": "Agregar servidor",
       "editServer": "Editar servidor",
@@ -102,15 +102,16 @@
     },
     "import": {
       "title": "Importar desde ODK Central",
-      "intro": "Traiga un formulario publicado y sus adjuntos desde un proyecto de ODK Central a su biblioteca.",
+      "intro": "Traiga un formulario y sus adjuntos desde un proyecto de ODK Central a su biblioteca.",
       "serverLabel": "Servidor",
       "serverPlaceholder": "Elegir un servidor",
       "projectLabel": "Proyecto",
       "projectPlaceholder": "Elegir un proyecto",
       "formLabel": "Formulario",
       "formPlaceholder": "Elegir un formulario",
-      "publishedOnly": "Solo se pueden importar formularios publicados. Los borradores no se muestran.",
-      "noForms": "Este proyecto no tiene formularios publicados.",
+      "draftNote": "Los formularios marcados como «sin publicar» nunca se han publicado; al importarlos se obtiene su borrador actual.",
+      "unpublishedTag": "(sin publicar)",
+      "noForms": "Este proyecto no tiene formularios.",
       "confirm": "Importar",
       "importing": "Importando…",
       "imported": "\"{name}\" importado desde ODK Central.",

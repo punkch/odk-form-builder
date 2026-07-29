@@ -27,7 +27,24 @@ const pickerStub = vi.hoisted(() => (testid: string, value: unknown) => {
 })
 vi.mock('@/components/central/CentralServerPicker.vue', () => pickerStub('stub-pick-server', 'srv-1'))
 vi.mock('@/components/central/CentralProjectPicker.vue', () => pickerStub('stub-pick-project', 5))
-vi.mock('@/components/central/CentralFormPicker.vue', () => pickerStub('stub-pick-form', 'central_form'))
+// The form picker additionally carries the `selected-form` model the drawer
+// branches published-vs-draft on: one button picks the form as published, the
+// other picks the same form as never published (`publishedAt: null`).
+vi.mock('@/components/central/CentralFormPicker.vue', () => ({
+  default: {
+    emits: ['update:modelValue', 'update:selectedForm', 'error'],
+    template: `<div>
+      <button
+        data-testid="stub-pick-form"
+        @click="$emit('update:selectedForm', { xmlFormId: 'central_form', name: 'Central Form', publishedAt: '2026-07-15T00:00:00Z' }); $emit('update:modelValue', 'central_form')"
+      >pick</button>
+      <button
+        data-testid="stub-pick-form-draft"
+        @click="$emit('update:selectedForm', { xmlFormId: 'central_form', name: 'Central Form', publishedAt: null }); $emit('update:modelValue', 'central_form')"
+      >pick draft</button>
+    </div>`,
+  },
+}))
 
 // useConfirm auto-accepts so the danger "replace" path runs without a mounted
 // ConfirmDialog.
@@ -81,12 +98,12 @@ const mountDrawer = (router: Router): VueWrapper =>
     },
   })
 
-/** Drive the flow: pick server/project/form, pull. */
-const pull = async (wrapper: VueWrapper): Promise<void> => {
+/** Drive the flow: pick server/project/form (published or draft), pull. */
+const pull = async (wrapper: VueWrapper, formButton = 'stub-pick-form'): Promise<void> => {
   await vi.waitUntil(() => findId(wrapper, 'stub-pick-server').exists())
   await findId(wrapper, 'stub-pick-server').trigger('click')
   await findId(wrapper, 'stub-pick-project').trigger('click')
-  await findId(wrapper, 'stub-pick-form').trigger('click')
+  await findId(wrapper, formButton).trigger('click')
   await findId(wrapper, 'library-central-pull').trigger('click')
   await flushPromises()
 }
@@ -116,7 +133,7 @@ describe('LibraryCentralDrawer', () => {
     await pull(wrapper)
 
     expect(findId(wrapper, 'library-central-report').exists()).toBe(true)
-    expect(centralMock.importFormFromCentral).toHaveBeenCalledWith('srv-1', 5, 'central_form')
+    expect(centralMock.importFormFromCentral).toHaveBeenCalledWith('srv-1', 5, 'central_form', 'published')
 
     // No collision (empty library) → Import lands a copy.
     await findId(wrapper, 'library-central-import').trigger('click')
@@ -134,6 +151,28 @@ describe('LibraryCentralDrawer', () => {
         lastPublishedContentHash: 'hash-imported',
       })
     )
+    expect(push).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'editor', params: { formId: forms[0].id } })
+    )
+  })
+
+  it('imports a never-published form from its draft and seeds no publish target', async () => {
+    const router = makeRouter()
+    const push = vi.spyOn(router, 'push')
+    const wrapper = mountDrawer(router)
+
+    await pull(wrapper, 'stub-pick-form-draft')
+
+    expect(findId(wrapper, 'library-central-report').exists()).toBe(true)
+    expect(centralMock.importFormFromCentral).toHaveBeenCalledWith('srv-1', 5, 'central_form', 'draft')
+
+    await findId(wrapper, 'library-central-import').trigger('click')
+    await flushPromises()
+
+    const forms = await formsRepo.listForms()
+    expect(forms).toHaveLength(1)
+    // A draft import has no publish history — seeding a target would fabricate one.
+    expect(centralMock.upsertTarget).not.toHaveBeenCalled()
     expect(push).toHaveBeenCalledWith(
       expect.objectContaining({ name: 'editor', params: { formId: forms[0].id } })
     )

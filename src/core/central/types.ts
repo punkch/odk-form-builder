@@ -80,7 +80,8 @@ export interface CentralProject {
 }
 
 /** A form summary from `GET .../:id/forms`. `publishedAt` is `null` for a
- * never-published draft — the import picker filters those out. */
+ * never-published form — the pickers label those "(unpublished)" and the
+ * import pulls their current draft instead of a published definition. */
 export interface CentralFormSummary {
   xmlFormId: string
   name?: string

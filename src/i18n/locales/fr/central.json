@@ -2,7 +2,7 @@
   "central": {
     "servers": {
       "heading": "Serveurs ODK Central",
-      "description": "Connectez Form Forge à un ou plusieurs serveurs ODK Central pour publier des ébauches et importer des formulaires publiés. C'est la seule fonctionnalité qui quitte cet appareil : un serveur n'est contacté que lorsque vous le demandez.",
+      "description": "Connectez Form Forge à un ou plusieurs serveurs ODK Central pour publier des ébauches et importer des formulaires. C'est la seule fonctionnalité qui quitte cet appareil : un serveur n'est contacté que lorsque vous le demandez.",
       "empty": "Aucun serveur pour l'instant. Ajoutez-en un pour commencer à publier vers ODK Central et à en importer des formulaires.",
       "addServer": "Ajouter un serveur",
       "editServer": "Modifier le serveur",
@@ -102,15 +102,16 @@
     },
     "import": {
       "title": "Importer depuis ODK Central",
-      "intro": "Récupérez un formulaire publié et ses fichiers joints depuis un projet ODK Central vers votre bibliothèque.",
+      "intro": "Récupérez un formulaire et ses fichiers joints depuis un projet ODK Central vers votre bibliothèque.",
       "serverLabel": "Serveur",
       "serverPlaceholder": "Choisir un serveur",
       "projectLabel": "Projet",
       "projectPlaceholder": "Choisir un projet",
       "formLabel": "Formulaire",
       "formPlaceholder": "Choisir un formulaire",
-      "publishedOnly": "Seuls les formulaires publiés peuvent être importés. Les ébauches ne sont pas listées.",
-      "noForms": "Ce projet n'a aucun formulaire publié.",
+      "draftNote": "Les formulaires marqués « non publié » n'ont jamais été publiés — l'importation récupère leur ébauche actuelle.",
+      "unpublishedTag": "(non publié)",
+      "noForms": "Ce projet n'a aucun formulaire.",
       "confirm": "Importer",
       "importing": "Importation…",
       "imported": "\"{name}\" importé depuis ODK Central.",

@@ -20,7 +20,7 @@ are stored locally (IndexedDB), edited visually, previewed live in the
 official [`@getodk/web-forms`](https://www.npmjs.com/package/@getodk/web-forms)
 engine, and exported as XForm XML, XLSForm (.xlsx), or either bundled as a
 ZIP ready for ODK Central. When you opt in, it can also publish drafts to and
-import published forms from your own ODK Central servers. Installable as an
+import forms from your own ODK Central servers. Installable as an
 offline app on field laptops and tablets.
 
 ## Highlights
@@ -53,7 +53,7 @@ offline app on field laptops and tablets.
 - **Direct to ODK Central, opt-in** — publish drafts (definition +
   attachments) to any number of Central servers, track every destination
   with a local freshness check and one-click re-publish, and import
-  published forms back — without leaving the builder. It stays invisible
+  forms back — even never-published drafts — without leaving the builder. It stays invisible
   until you add a server; credentials are encrypted at rest in a
   passphrase-derived vault that never leaves your device, and every
   connection is manual — no background sync, no telemetry. Requires a
@@ -113,9 +113,12 @@ offline app on field laptops and tablets.
   - **Check server** — a per-destination metadata read (Central's version, no
     XML download) reconciles what you last sent against what Central now holds.
   - **Import from Central** — a matching Central panel on the Form Library:
-    pick server → project → form, pull the published XForm and its attachments,
-    and land it with the same row-level report as file import (replace-or-copy
-    on a name collision), seeding the origin as the form's first destination.
+    pick server → project → form (a never-published form is listed with an
+    "unpublished" tag and imports its current draft), pull the XForm and its
+    attachments, and land it with the same row-level report as file import
+    (replace-or-copy on a name collision), seeding the origin as the form's
+    first destination (published imports only — a draft has no publish
+    history to record).
   - **Multi-server, tracked destinations** — register several servers; publish
     the same form to dev/staging/prod and re-deploy to any of them in one click.
   - **One-per-session vault** — passwords stored encrypted at rest

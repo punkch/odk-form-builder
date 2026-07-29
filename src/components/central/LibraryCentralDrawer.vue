@@ -2,9 +2,10 @@
 /**
  * Library-level ODK Central panel — the import counterpart to the editor's
  * `CentralDrawer` (chrome + vault gate shared via `CentralDrawerShell`). Browses
- * a server / project / published form, pulls it into the workspace (with
- * attachments), handles a formId collision (copy vs replace), seeds the origin
- * as the form's first tracked publish destination, and opens it in the editor.
+ * a server / project / form (a never-published one imports its current draft),
+ * pulls it into the workspace (with attachments), handles a formId collision
+ * (copy vs replace), seeds the origin as the form's first tracked publish
+ * destination (published imports only), and opens it in the editor.
  *
  * Replaces the old "From Central" source toggle inside the generic Import
  * dialog, so Central import speaks the same drawer language as publishing.
@@ -24,6 +25,8 @@ import ImportCollisionPanel from '@/components/importexport/ImportCollisionPanel
 import ImportReport from '@/components/importexport/ImportReport.vue'
 import { useImportLanding } from '@/composables/useImportLanding'
 import { contentFingerprint } from '@/core/central/fingerprint'
+import type { CentralImportSource } from '@/core/central/import'
+import type { CentralFormSummary } from '@/core/central/types'
 import type { ImportParseResult } from '@/core/import-form'
 import type { ArchiveAttachment } from '@/core/workspace/archive'
 import { useAppI18n } from '@/i18n'
@@ -42,6 +45,19 @@ const central = useCentralStore()
 const serverId = ref<string | null>(null)
 const projectId = ref<number | null>(null)
 const xmlFormId = ref<string | null>(null)
+// The picker's summary for the chosen form — the drawer branches published vs
+// draft import on its `publishedAt`.
+const selectedForm = ref<CentralFormSummary | null>(null)
+// The origin the current `result` was pulled from, captured at pull time — the
+// landing step seeds the publish target from THIS, never from the live picker
+// refs, so a picker change while the pull/landing is in flight can't seed a
+// target against the wrong destination.
+const pulledFrom = ref<{
+  serverId: string
+  projectId: number
+  xmlFormId: string
+  source: CentralImportSource
+} | null>(null)
 const importingCentral = ref(false)
 const centralError = ref<unknown>(null)
 // shallowRef: these carry Blobs / go straight into IndexedDB — deep reactivity
@@ -71,6 +87,8 @@ const reset = (): void => {
   serverId.value = null
   projectId.value = null
   xmlFormId.value = null
+  selectedForm.value = null
+  pulledFrom.value = null
   importingCentral.value = false
   centralError.value = null
   centralAttachments.value = []
@@ -82,16 +100,26 @@ const reset = (): void => {
 
 const close = (): void => { open.value = false; reset() }
 
-// --- Pull the published form into a parse result ----------------------------
+// --- Pull the chosen form into a parse result --------------------------------
+// The id and its summary come from two picker models that settle a tick apart
+// while the list refetches; requiring them to agree keeps the published/draft
+// branch from ever being decided on a stale pair.
+const canPull = computed(() =>
+  xmlFormId.value !== null && selectedForm.value?.xmlFormId === xmlFormId.value)
+
 const pull = async (): Promise<void> => {
   const s = serverId.value
   const p = projectId.value
   const f = xmlFormId.value
-  if (s === null || p === null || f === null) return
+  const summary = selectedForm.value
+  if (s === null || p === null || f === null || summary?.xmlFormId !== f) return
   centralError.value = null
   importingCentral.value = true
   try {
-    const pulled = await central.importFormFromCentral(s, p, f)
+    // A never-published form has no published definition — pull its draft.
+    const source: CentralImportSource = summary.publishedAt === null ? 'draft' : 'published'
+    const pulled = await central.importFormFromCentral(s, p, f, source)
+    pulledFrom.value = { serverId: s, projectId: p, xmlFormId: f, source }
     centralAttachments.value = pulled.attachments
     centralPublishedVersion.value = pulled.document.settings.version ?? ''
     centralFormName.value = pulled.document.settings.formTitle ?? f
@@ -105,16 +133,18 @@ const pull = async (): Promise<void> => {
 
 // --- Landing ----------------------------------------------------------------
 const seedTarget = async (formRecordId: string): Promise<void> => {
-  const s = serverId.value
-  const p = projectId.value
-  const f = xmlFormId.value
+  const origin = pulledFrom.value
   const doc = result.value?.document
-  if (s === null || p === null || f === null || doc == null) return
+  if (origin === null || doc == null) return
+  // A draft import has no publish history — seeding lastPublished* would
+  // fabricate one and break the freshness chip (shape.md decision, 2026-07-29
+  // central-draft-import). The user adds a destination on first real publish.
+  if (origin.source === 'draft') return
   await central.upsertTarget({
     formRecordId,
-    serverId: s,
-    projectId: p,
-    xmlFormId: f,
+    serverId: origin.serverId,
+    projectId: origin.projectId,
+    xmlFormId: origin.xmlFormId,
     lastPublishedVersion: centralPublishedVersion.value,
     lastPublishedAt: Date.now(),
     // The imported doc IS what Central holds, so its fingerprint seeds freshness.
@@ -188,12 +218,12 @@ const importForm = async (): Promise<void> => {
         <label>{{ t('central.import.formLabel') }}</label>
         <CentralFormPicker
           v-model="xmlFormId"
+          v-model:selected-form="selectedForm"
           :server-id="serverId"
           :project-id="projectId"
-          published-only
           @error="onCentralError"
         />
-        <small class="import-central-note">{{ t('central.import.publishedOnly') }}</small>
+        <small class="import-central-note">{{ t('central.import.draftNote') }}</small>
       </div>
       <Message v-if="centralError !== null" severity="error" data-testid="library-central-error">
         {{ centralErrorText }}
@@ -203,7 +233,7 @@ const importForm = async (): Promise<void> => {
           :label="t('central.import.confirm')"
           icon="pi pi-cloud-download"
           :loading="importingCentral"
-          :disabled="xmlFormId === null"
+          :disabled="!canPull"
           data-testid="library-central-pull"
           @click="pull"
         />

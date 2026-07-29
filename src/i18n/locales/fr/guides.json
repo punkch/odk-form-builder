@@ -72,7 +72,7 @@
     },
     "central": {
       "title": "Publier vers & importer depuis ODK Central",
-      "summary": "Envoyez l'ébauche d'un formulaire vers votre projet ODK Central et récupérez des formulaires publiés dans votre bibliothèque. Cette fonction est entièrement facultative et inactive tant que vous n'ajoutez pas de serveur — rien ne contacte un serveur sans votre demande, et vos identifiants restent chiffrés sur cet appareil.",
+      "summary": "Envoyez l'ébauche d'un formulaire vers votre projet ODK Central et récupérez des formulaires dans votre bibliothèque. Cette fonction est entièrement facultative et inactive tant que vous n'ajoutez pas de serveur — rien ne contacte un serveur sans votre demande, et vos identifiants restent chiffrés sur cet appareil.",
       "steps": {
         "1": "Dans Paramètres (roue dentée sur la bibliothèque de formulaires) → « Serveurs ODK Central » → « Ajouter un serveur », donnez-lui un nom d'affichage et l'URL de base (https://, ou http:// uniquement pour localhost), puis ajoutez votre e-mail et votre mot de passe et choisissez « Enregistrer le mot de passe ». Vos identifiants restent chiffrés sur cet appareil.",
         "2": "Ouvrez un formulaire et cliquez sur Central dans la barre d'outils de l'éditeur pour afficher le panneau Central — le centre de publication de ce formulaire et de suivi des destinations où il a été envoyé.",
@@ -81,7 +81,7 @@
         "5": "Publier ne fait que créer ou mettre à jour une ébauche dans Central. La relecture et la mise en ligne de cette ébauche restent volontairement dans l'interface web propre à Central, afin que la relecture s'y déroule.",
         "6": "Le panneau répertorie chaque destination vers laquelle vous avez publié, chacune avec une puce de fraîcheur — « À jour », « Modifié » ou « Non comparé » — pour qu'une republication ou une mise à jour ne soit qu'à un clic.",
         "7": "Utilisez « Vérifier le serveur » sur une destination pour comparer votre dernier envoi à ce que Central contient maintenant — que les versions correspondent, diffèrent, ou que le formulaire n'y soit plus.",
-        "8": "Pour récupérer un formulaire, ouvrez le panneau Central de la bibliothèque (« Importer un formulaire » → « Depuis ODK Central »), choisissez serveur → projet → formulaire, et sa définition publiée ainsi que ses pièces jointes se téléchargent dans votre bibliothèque."
+        "8": "Pour récupérer un formulaire, ouvrez le panneau Central de la bibliothèque (« Importer un formulaire » → « Depuis ODK Central »), choisissez serveur → projet → formulaire, et sa définition ainsi que ses pièces jointes se téléchargent dans votre bibliothèque — un formulaire marqué « non publié » importe son ébauche actuelle."
       }
     },
     "backup": {

@@ -1,7 +1,7 @@
 /**
- * Assemble a FormDocument (plus its attachment blobs) from a published form on
- * an ODK Central server — the pure counterpart of the ImportDialog "From
- * Central" source.
+ * Assemble a FormDocument (plus its attachment blobs) from a form on an ODK
+ * Central server — a published form, or the current draft of a never-published
+ * form — the pure counterpart of the ImportDialog "From Central" source.
  *
  * Pure core: no Vue/Pinia/Dexie/vue-i18n imports. The (already token-bound)
  * `CentralClient` is injected, so unit tests drive this with a fake client and
@@ -31,6 +31,10 @@ import { parseXForm } from '../xform/parser'
 
 import type { CentralClient } from './client'
 
+/** Which definition an import pulls: the published one, or the current draft
+ * of a never-published form. */
+export type CentralImportSource = 'published' | 'draft'
+
 export interface CentralImportInput {
   /** A client already bound to the target server (the store injects it). */
   client: CentralClient
@@ -40,6 +44,9 @@ export interface CentralImportInput {
   projectId: number
   /** The Central xmlFormId (form definition id) to pull. */
   xmlFormId: string
+  /** Which definition to pull: `'draft'` fetches the current draft of a
+   * never-published form; defaults to `'published'`. */
+  source?: CentralImportSource
 }
 
 export interface CentralImportResult {
@@ -52,7 +59,8 @@ export interface CentralImportResult {
 }
 
 /**
- * Pull a published form and its attachments from ODK Central and assemble the
+ * Pull a form — a published form, or the current draft of a never-published
+ * form — and its attachments from ODK Central and assemble the
  * `{document, issues, attachments}` the import-landing path consumes. Transport
  * failures propagate as the injected client's `CentralError` (the UI maps
  * `kind` → `central.errors.*`); this function never localizes.
@@ -60,15 +68,25 @@ export interface CentralImportResult {
 export const importFormFromCentral = async (
   input: CentralImportInput
 ): Promise<CentralImportResult> => {
-  const { client, token, projectId, xmlFormId } = input
+  const { client, token, projectId, xmlFormId, source = 'published' } = input
 
-  const xml = await client.getPublishedFormXml(token, projectId, xmlFormId)
+  // Only the three network reads branch on the source; everything downstream
+  // (parse → normalize → download assembly → attachment rebuild) is shared.
+  const getXml = source === 'draft' ? client.getDraftFormXml : client.getPublishedFormXml
+  const listAttachments = source === 'draft' ? client.listDraftAttachments : client.listPublishedAttachments
+  const downloadAttachment = source === 'draft' ? client.downloadDraftAttachment : client.downloadPublishedAttachment
+
+  // The definition and the attachment list are independent reads — fetch them
+  // concurrently, saving a round-trip on every import.
+  const [xml, descriptors] = await Promise.all([
+    getXml(token, projectId, xmlFormId),
+    listAttachments(token, projectId, xmlFormId),
+  ])
   const { document, issues } = parseXForm(xml)
   // Import boundary: merge mixed default+named-language text into the primary
   // language (no-op on clean docs, conflict cells kept).
   normalizeDefaultContent(document)
 
-  const descriptors = await client.listPublishedAttachments(token, projectId, xmlFormId)
   // exists:false → expected-but-not-uploaded on Central; nothing to fetch. The
   // remaining downloads are independent, so we fire them concurrently and rebuild
   // the ordered arrays from the resolved results (map preserves descriptor order,
@@ -76,7 +94,7 @@ export const importFormFromCentral = async (
   const present = descriptors.filter((descriptor) => descriptor.exists)
   const downloaded = await Promise.all(
     present.map(async (descriptor) => {
-      const blob = await client.downloadPublishedAttachment(token, projectId, xmlFormId, descriptor.name)
+      const blob = await downloadAttachment(token, projectId, xmlFormId, descriptor.name)
       // Prefer the download's Content-Type (surfaced as blob.type), defaulting to
       // application/octet-stream when the server sent none.
       const mediatype = blob.type !== '' ? blob.type : DEFAULT_MEDIATYPE

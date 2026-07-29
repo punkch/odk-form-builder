@@ -24,6 +24,7 @@ import { createCentralClient, type CentralClient } from '@/core/central/client'
 import {
   importFormFromCentral as runImportFromCentral,
   type CentralImportResult,
+  type CentralImportSource,
 } from '@/core/central/import'
 import {
   publishForm as runPublishForm,
@@ -329,17 +330,20 @@ export const useCentralStore = defineStore('central', () => {
   // owns these two entry points. Components never see a token — they call these.
 
   /**
-   * Pull a published form (definition + attachments) from a server. Connects
-   * (and unlocks) as needed, then runs the pure import assembly with a
-   * server-bound client. The caller lands the returned document + blobs.
+   * Pull a form (definition + attachments) from a server — the published
+   * definition, or the current draft of a never-published form when `source`
+   * is `'draft'`. Connects (and unlocks) as needed, then runs the pure import
+   * assembly with a server-bound client. The caller lands the returned
+   * document + blobs.
    */
   const importFormFromCentral = async (
     serverId: string,
     projectId: number,
-    xmlFormId: string
+    xmlFormId: string,
+    source: CentralImportSource = 'published'
   ): Promise<CentralImportResult> => {
     const { client, token } = await authedContext(serverId)
-    return runImportFromCentral({ client, token, projectId, xmlFormId })
+    return runImportFromCentral({ client, token, projectId, xmlFormId, source })
   }
 
   /**

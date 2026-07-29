@@ -49,22 +49,33 @@ const makeClient = (opts: FakeOptions = {}): CentralClient => {
     async (_t: string, _p: number, _f: string, name: string) =>
       opts.blobs?.[name] ?? new Blob([])
   )
-  // Only the three methods import.ts touches are implemented; the rest exist so
+  // The draft trio mirrors the published one from the same options, so each
+  // test can assert which source's endpoints were (not) hit.
+  const getDraftFormXml = vi.fn(opts.getXml ?? (async () => opts.xml ?? XFORM))
+  const listDraftAttachments = vi.fn(
+    opts.listAttachments ?? (async () => opts.descriptors ?? [])
+  )
+  const downloadDraftAttachment = vi.fn(
+    async (_t: string, _p: number, _f: string, name: string) =>
+      opts.blobs?.[name] ?? new Blob([])
+  )
+  // Only the source trios import.ts touches are implemented; the rest exist so
   // the object satisfies CentralClient without being exercised.
   const unused = vi.fn(async () => { throw new Error('not used by import') })
   return {
     getPublishedFormXml,
     listPublishedAttachments,
     downloadPublishedAttachment,
+    getDraftFormXml,
+    listDraftAttachments,
+    downloadDraftAttachment,
     createSession: unused,
     deleteSession: unused,
     listProjects: unused,
     listForms: unused,
-    getDraftFormXml: unused,
     createForm: unused,
     updateDraft: unused,
     uploadDraftAttachment: unused,
-    listDraftAttachments: unused,
   } as unknown as CentralClient
 }
 
@@ -102,9 +113,51 @@ describe('importFormFromCentral', () => {
     expect(attachments[0].blob).toBeInstanceOf(Blob)
     expect(attachments[0].mediatype).toBe('image/png')
 
-    // The token / project / form id are threaded through to the client.
+    // The token / project / form id are threaded through to the client, and an
+    // omitted `source` defaults to the published endpoints — never the draft's.
     expect(client.getPublishedFormXml).toHaveBeenCalledWith('tok-1', 7, 'import_test')
     expect(client.listPublishedAttachments).toHaveBeenCalledWith('tok-1', 7, 'import_test')
+    expect(client.getDraftFormXml).not.toHaveBeenCalled()
+    expect(client.listDraftAttachments).not.toHaveBeenCalled()
+    expect(client.downloadDraftAttachment).not.toHaveBeenCalled()
+  })
+
+  it('pulls the draft endpoints (and only those) when source is draft', async () => {
+    const client = makeClient({
+      descriptors: [desc('logo.png', true, 'image/png'), desc('options.csv', true, 'text/csv')],
+      blobs: {
+        'logo.png': new Blob([new Uint8Array([1, 2, 3])], { type: 'image/png' }),
+        'options.csv': new Blob(['a,b\n1,2'], { type: 'text/csv' }),
+      },
+    })
+
+    const { document, issues, attachments } = await importFormFromCentral({
+      client,
+      token: 'tok-1',
+      projectId: 7,
+      xmlFormId: 'import_test',
+      source: 'draft',
+    })
+
+    // Same assembled shape as the published path: parsed document with
+    // `attachments` rebuilt, blobs in archive currency.
+    expect(document.settings.formId).toBe('import_test')
+    expect(issues.filter((i) => i.severity === 'error')).toEqual([])
+    expect(document.attachments).toEqual([
+      { id: '', filename: 'logo.png', mediatype: 'image/png', size: 3, role: 'media' },
+      { id: '', filename: 'options.csv', mediatype: 'text/csv', size: 7, role: 'csv' },
+    ])
+    expect(attachments.map((a) => a.filename)).toEqual(['logo.png', 'options.csv'])
+
+    // The draft trio carried the whole import…
+    expect(client.getDraftFormXml).toHaveBeenCalledWith('tok-1', 7, 'import_test')
+    expect(client.listDraftAttachments).toHaveBeenCalledWith('tok-1', 7, 'import_test')
+    expect(client.downloadDraftAttachment).toHaveBeenCalledWith('tok-1', 7, 'import_test', 'logo.png')
+    expect(client.downloadDraftAttachment).toHaveBeenCalledWith('tok-1', 7, 'import_test', 'options.csv')
+    // …and the published endpoints were never touched.
+    expect(client.getPublishedFormXml).not.toHaveBeenCalled()
+    expect(client.listPublishedAttachments).not.toHaveBeenCalled()
+    expect(client.downloadPublishedAttachment).not.toHaveBeenCalled()
   })
 
   it('downloads all existing attachments and keeps descriptor order despite out-of-order resolution', async () => {
