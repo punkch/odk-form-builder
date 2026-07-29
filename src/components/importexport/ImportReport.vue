@@ -8,7 +8,10 @@
 import { computed } from 'vue'
 
 import type { ImportParseResult } from '@/core/import-form'
-import { isSheetScope, type Issue } from '@/core/validate'
+// Import from issues directly, not the '@/core/validate' barrel — the barrel
+// carries every validator, which would drag the whole validate engine into
+// the library-view chunk (this report renders on the import landing path).
+import { isSheetScope, type Issue } from '@/core/validate/issues'
 import { useAppI18n } from '@/i18n'
 
 const props = defineProps<{

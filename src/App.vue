@@ -2,10 +2,15 @@
 import Button from 'primevue/button'
 import ConfirmDialog from 'primevue/confirmdialog'
 import Toast from 'primevue/toast'
+import { defineAsyncComponent } from 'vue'
 
-import UnlockVaultDialog from '@/components/central/UnlockVaultDialog.vue'
 import { useAppI18n } from '@/i18n'
 import { SW_UPDATE_TOAST_GROUP, useSwUpdate } from '@/pwa/registerSW'
+
+// Loaded lazily: pulls in the central store -> vault crypto -> Dexie, which
+// the entry chunk should not carry just to register an app-global, normally
+// invisible dialog.
+const UnlockVaultDialog = defineAsyncComponent(() => import('@/components/central/UnlockVaultDialog.vue'))
 
 const { t } = useAppI18n()
 

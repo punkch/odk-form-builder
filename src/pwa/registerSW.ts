@@ -2,7 +2,6 @@ import { useToast } from 'primevue/usetoast'
 import { useRouter } from 'vue-router'
 
 import { translate } from '@/i18n'
-import { useFormStore } from '@/stores/form'
 
 import { decide } from './updatePolicy'
 
@@ -45,7 +44,6 @@ export interface SwUpdateHandle {
 export const useSwUpdate = (): SwUpdateHandle => {
   const toast = useToast()
   const router = useRouter()
-  const form = useFormStore()
   const loadedAt = Date.now()
 
   let updateSW: ((reloadPage?: boolean) => Promise<void>) | null = null
@@ -59,14 +57,25 @@ export const useSwUpdate = (): SwUpdateHandle => {
   if (swRegistrationAllowed()) {
     void import('virtual:pwa-register').then(({ registerSW }) => {
       updateSW = registerSW({
-        onNeedRefresh () {
-          const action = decide({
-            msSinceLoad: Date.now() - loadedAt,
-            // Any open form counts as "editing" — the full preview keeps the
-            // form store loaded too.
-            editorOpen: form.recordId !== null,
-            saveState: form.saveState,
-          })
+        async onNeedRefresh () {
+          // The form store (and its whole core/persistence graph) is only
+          // needed at this exact moment, so it's imported lazily here rather
+          // than up front — keeps the entry chunk free of the editor core.
+          // If the chunk can't be fetched (the update window is exactly when
+          // precache contents churn), fall back to the conservative toast
+          // path instead of silently dropping the update.
+          let action: ReturnType<typeof decide> = 'toast'
+          try {
+            const { useFormStore } = await import('@/stores/form')
+            const form = useFormStore()
+            action = decide({
+              msSinceLoad: Date.now() - loadedAt,
+              // Any open form counts as "editing" — the full preview keeps
+              // the form store loaded too.
+              editorOpen: form.recordId !== null,
+              saveState: form.saveState,
+            })
+          } catch { /* keep the toast fallback */ }
           if (action === 'reload') {
             applyUpdate()
             return

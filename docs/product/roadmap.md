@@ -418,16 +418,22 @@ folder when they appear.
   `type` → `'string'` + `options`, plus the boolean-write logic in
   `TypeConfigSection.vue` and a golden check) — deliberately left out of
   the 2026-07-16 metadata-only registry audit commit.
-- **Performance & SEO remediation** (from the 2026-07-23 Lighthouse audit;
-  M-sized, needs shaping) — throttled-mobile performance scores 54: FCP
-  11.9s / LCP 12.2s from the monolithic bundle (~750 KiB unused JS, ~373 KiB
-  unused CSS at first paint; TBT/CLS already fine). Candidates: lazy-load
-  the `@getodk/web-forms` preview child app and the `xlsx` reader as async
-  chunks, route-level code splitting, and the one-line SEO fix (missing
-  `<meta name="description">` in `index.html`, SEO 90→100). Deliberately
-  split out of the 2026-07-23 a11y remediation ("strictly a11y" scoping
-  decision); audit data in
-  `docs/specs/2026-07-23-1748-a11y-wcag-aa-remediation/references.md`.
+- **Performance & SEO remediation** — **delivered 2026-07-27**
+  (`docs/specs/2026-07-27-1856-lighthouse-performance/`): the root cause was
+  not a monolithic bundle but the vite `manualChunks` rule which, under
+  rolldown (Vite 8), pulled Vue into the `@getodk/web-forms` chunk and made
+  the whole 4.8 MB preview engine render-blocking. Removing it + slimming the
+  entry/landing graphs (lazy form store in `registerSW`, async
+  UnlockVaultDialog/SaveIndicator, lazy fr/es catalogs via async `setLocale`)
+  + `<meta name="description">` and `robots.txt` took throttled-mobile
+  Lighthouse from 54 (FCP ~12 s, 2.2 MB gz initial) to ~70–75 (FCP ~4 s,
+  ~580 KB gz initial), CLS still 0; guarded by the `pnpm check:bundle` CI
+  gate. Deliberate won't-fixes: GH Pages cache headers (not configurable;
+  hashed assets + SW precache cover repeat visits), bf-cache, prod source
+  maps. Follow-up delivered 2026-07-29: the Dexie default backend moved out
+  of the seam into a lazy `persistence/dexie-backend.ts` chunk (installed by
+  the non-embed boot), cutting the preloaded critical path to ~590 KB raw
+  (budget re-pinned at 680 KB).
 - **Drag-and-drop upload into the Attachments dialog** — noted as a
   nice-to-have in the attachment-manager spec; the dialog now has the
   conflict/missing machinery it would compose with.

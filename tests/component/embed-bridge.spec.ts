@@ -15,7 +15,8 @@ import {
   type BuilderMessage,
   type SaveFormResultMessage,
 } from '@/embed/protocol'
-import { dexieBackend, getPersistenceBackend, setPersistenceBackend } from '@/persistence/backend'
+import { getPersistenceBackend, setPersistenceBackend } from '@/persistence/backend'
+import { dexieBackend } from '@/persistence/dexie-backend'
 import { createMemoryBackend } from '@/persistence/memory-backend'
 import { useEmbedStore } from '@/stores/embed'
 import { useFormStore } from '@/stores/form'

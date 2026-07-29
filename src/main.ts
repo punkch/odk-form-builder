@@ -27,7 +27,7 @@ import { createApp } from 'vue'
 
 import App from '@/App.vue'
 import { embedDetection } from '@/embed/detect'
-import { i18n } from '@/i18n'
+import { i18n, SUPPORTED_LOCALES } from '@/i18n'
 import { detectPreferredLocale } from '@/i18n/detectLocale'
 import { primeVueLocaleFor, registerPrimeVueConfig } from '@/i18n/primevue-locale'
 import { setLocale } from '@/i18n/setLocale'
@@ -86,25 +86,38 @@ if (embed.active) {
   embedStore.hostOrigin = embed.origin
   startEmbedBridge({ router, pinia })
 } else {
-  // One-time rename of the workspace IndexedDB (odk-form-builder → form-forge).
-  // Must run before any store opens the renamed database. Embed sessions never
-  // touch Dexie (memory backend above), so this is the local path only.
-  const { migrateLegacyDb } = await import('@/persistence/migrate-legacy-db')
+  // The Dexie backend is a lazy chunk (keeps IndexedDB plumbing out of the
+  // render-blocking entry — see the critical-path invariant in CLAUDE.md);
+  // install it before any store touches persistence. Then the one-time rename
+  // of the workspace IndexedDB (odk-form-builder → form-forge), which must run
+  // before any store opens the renamed database. Embed sessions never touch
+  // Dexie (memory backend above), so this is the local path only.
+  const [{ dexieBackend }, { migrateLegacyDb }] = await Promise.all([
+    import('@/persistence/dexie-backend'),
+    import('@/persistence/migrate-legacy-db'),
+  ])
+  setPersistenceBackend(dexieBackend)
   await migrateLegacyDb()
 }
 
 // Apply the persisted UI language (and <html lang dir>) before first paint.
 // First-run only (non-embed, no locale preference ever stored): best-match
-// navigator.language against the registered catalogs so a fresh session
-// doesn't default to English for a francophone/hispanophone visitor. Any
-// stored preference (Settings choice, or a restored workspace-backup
-// preference) always wins from then on. (`ui` itself was already read above,
-// before installing PrimeVue.)
+// navigator.language against the app's known locales (SUPPORTED_LOCALES, not
+// `i18n.global.availableLocales` — fr/es ship as lazy chunks now and aren't
+// registered yet at this point) so a fresh session doesn't default to English
+// for a francophone/hispanophone visitor. Any stored preference (Settings
+// choice, or a restored workspace-backup preference) always wins from then
+// on. (`ui` itself was already read above, before installing PrimeVue.)
 if (!embed.active && !ui.localeWasStored) {
-  const detected = detectPreferredLocale(navigator.language, i18n.global.availableLocales, ui.locale)
+  const detected = detectPreferredLocale(navigator.language, Object.keys(SUPPORTED_LOCALES), ui.locale)
   if (detected !== ui.locale) ui.locale = detected
 }
-setLocale(ui.locale)
+// Awaited so a detected/stored fr/es preference paints in the right language
+// on first render instead of flashing English while its catalog chunk loads.
+// A failed catalog fetch (offline first paint, or a stale index.html naming a
+// gone chunk hash after a redeploy) must degrade to English — a rejection
+// here would abort the whole module and leave a blank page.
+await setLocale(ui.locale).catch(() => {})
 // Apply the persisted theme/accent and start tracking OS scheme + preference
 // changes. The inline no-FOUC script already stamped the attributes; this keeps
 // them in sync reactively (and lets an embed host override them).

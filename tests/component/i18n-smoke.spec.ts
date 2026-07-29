@@ -31,11 +31,14 @@ describe('i18n plugin wiring', () => {
   })
 
   it('setLocale syncs the locale with <html lang> and text direction', () => {
-    setLocale('ar')
+    // Neither 'ar' nor 'en' has a lazy loader (English ships in the main
+    // bundle; 'ar' has no catalog at all), so setLocale never hits an
+    // `await` and its side effects land synchronously before this returns.
+    void setLocale('ar')
     expect(document.documentElement.lang).toBe('ar')
     expect(document.documentElement.dir).toBe('rtl')
 
-    setLocale('en')
+    void setLocale('en')
     expect(document.documentElement.lang).toBe('en')
     expect(document.documentElement.dir).toBe('ltr')
     expect(mount(CancelLabel).text()).toBe('Cancel')

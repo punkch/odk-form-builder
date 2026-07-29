@@ -22,8 +22,9 @@ export default defineConfig({
       registerType: 'prompt',
       workbox: {
         globPatterns: ['**/*.{js,css,html,woff2,svg,png,ico}'],
-        // The odk-web-forms chunk is ~5 MB raw; offline preview is the whole
-        // point, so raise workbox's 2 MB default to precache it.
+        // @getodk/web-forms splits into lazy chunks of up to ~2.5 MB raw;
+        // offline preview is the whole point, so raise workbox's 2 MB
+        // default to precache them.
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         navigateFallback: 'index.html',
       },
@@ -62,14 +63,14 @@ export default defineConfig({
   },
   build: {
     target: 'es2022',
-    // @getodk/web-forms is a ~3MB chunk on its own; it is lazy-imported by the
-    // preview and must not be inlined into the entry chunk.
-    rollupOptions: {
-      output: {
-        manualChunks (id) {
-          if (id.includes('@getodk')) return 'odk-web-forms'
-        },
-      },
-    },
+    // @getodk/web-forms (~5 MB raw) is only ever dynamically imported
+    // (src/preview/webFormsLoader.ts), so rolldown naturally emits it as
+    // lazy chunks. Do NOT reintroduce a manualChunks group for it: under
+    // rolldown a `id.includes('@getodk')` group swallows shared deps (Vue
+    // itself), which makes the entry statically import the whole preview
+    // engine and turns it render-blocking (Lighthouse mobile FCP went from
+    // ~12 s to ~5 s when the group was removed — see
+    // docs/specs/2026-07-27-1856-lighthouse-performance/). CI enforces this
+    // via `pnpm check:bundle` (scripts/check-bundle-budget.mjs).
   },
 })

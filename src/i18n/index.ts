@@ -1,8 +1,6 @@
 import { createI18n, useI18n } from 'vue-i18n'
 
 import { en } from './locales/en'
-import { es } from './locales/es'
-import { fr } from './locales/fr'
 import { frPluralRule } from './pluralRules'
 
 /**
@@ -50,22 +48,39 @@ export const i18n = createI18n<{ message: MessageSchema }, AppLocale, false>({
   globalInjection: true,
   locale: 'en',
   fallbackLocale: 'en',
-  messages: { en, fr, es },
+  // Only English ships eagerly; fr/es are fetched as separate lazy chunks and
+  // registered via `setLocaleMessage` on first switch (see setLocale.ts). The
+  // `AppLocale` union above forces `messages`'s declared type to require every
+  // locale up front — this cast is the acknowledged escape hatch for that
+  // (vue-i18n's own documented lazy-loading pattern), not a runtime lie:
+  // `i18n.global.availableLocales` correctly reports only 'en' until a switch
+  // registers more.
+  messages: { en } as Record<AppLocale, MessageSchema>,
   pluralRules: { fr: frPluralRule },
 })
 
 /**
- * Native display names for the UI locales the app knows how to label. What is
- * actually selectable derives from `i18n.global.availableLocales` (see
- * `localeOptions`), so registering a catalog — e.g. a test catalog via
- * `i18n.global.setLocaleMessage` — is what adds an option; this map only
- * supplies its human name.
+ * Native display names for the UI locales the app knows how to label. fr/es
+ * catalogs are lazy-loaded on first switch (`setLocale`), so they're NOT
+ * registered in `i18n.global.availableLocales` at boot — this map, not that
+ * list, is what the picker's option codes come from now (see `localeOptions`).
  */
-export const SUPPORTED_LOCALES: Record<string, string> = { en: 'English', fr: 'Français', es: 'Español' }
+export const SUPPORTED_LOCALES: Record<AppLocale, string> = { en: 'English', fr: 'Français', es: 'Español' }
 
-/** Options for the app-language picker: every registered catalog, labeled by native name when known. */
-export const localeOptions = (): { code: string, label: string }[] =>
-  i18n.global.availableLocales.map((code) => ({ code, label: SUPPORTED_LOCALES[code] ?? code }))
+/**
+ * Options for the app-language picker: every locale the app ships (always
+ * offered, even before its catalog has been fetched) plus any catalog
+ * registered ad hoc — e.g. a test's `i18n.global.setLocaleMessage` — labeled
+ * by native name when known, else its raw code. Deduped and sorted so the
+ * order stays stable regardless of load/registration order.
+ */
+export const localeOptions = (): { code: string, label: string }[] => {
+  const codes = new Set<string>([...Object.keys(SUPPORTED_LOCALES), ...i18n.global.availableLocales])
+  return [...codes].sort().map((code) => ({
+    code,
+    label: code in SUPPORTED_LOCALES ? SUPPORTED_LOCALES[code as AppLocale] : code,
+  }))
+}
 
 /**
  * Preferred way to translate in components: `const { t } = useAppI18n()`.

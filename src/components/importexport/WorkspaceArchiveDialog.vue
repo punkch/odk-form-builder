@@ -140,7 +140,7 @@ const importNow = async (): Promise<void> => {
       // Per-form export-format memory is keyed by the source workspace's
       // record ids — rekey it through this import's fresh ids first.
       ui.applyPreferences(remapPreferencesFormIds(preferences, formIdMap))
-      setLocale(ui.locale)
+      await setLocale(ui.locale)
       toast.add({
         severity: 'info',
         summary: t('importExport.workspaceArchive.preferencesRestored'),

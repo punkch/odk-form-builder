@@ -5,6 +5,14 @@ import 'fake-indexeddb/auto'
 // src/core/xform/xml-reader.ts feature-detects it off globalThis).
 import { DOMParser as XmldomDOMParser } from '@xmldom/xmldom'
 
+import { setPersistenceBackend } from '@/persistence/backend'
+import { dexieBackend } from '@/persistence/dexie-backend'
+
+// In the app the Dexie default is installed by main.ts's boot (it's a lazy
+// chunk there); tests get it globally so specs can reach repos directly.
+// Backend-contract specs still swap backends via tests/helpers/backends.ts.
+setPersistenceBackend(dexieBackend)
+
 if ((globalThis as { DOMParser?: unknown }).DOMParser === undefined) {
   (globalThis as { DOMParser?: unknown }).DOMParser = XmldomDOMParser
 }

@@ -108,7 +108,7 @@ const workspaceImportVisible = ref(false)
 const languages = computed(() => localeOptions())
 
 const changeLocale = (code: string): void => {
-  setLocale(code)
+  void setLocale(code)
   ui.locale = code // the ui store watcher persists it to localStorage
 }
 

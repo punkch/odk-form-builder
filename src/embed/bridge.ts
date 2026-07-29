@@ -29,7 +29,11 @@ import {
   type ArchiveAttachment,
   type ArchiveFormInput,
 } from '@/core/workspace/archive'
-import { dexieBackend, setPersistenceBackend } from '@/persistence/backend'
+import { setPersistenceBackend } from '@/persistence/backend'
+// Static on purpose: applyPersistence swaps backends synchronously mid-message,
+// and the bridge is itself a lazy chunk, so carrying Dexie here costs the
+// embed path only.
+import { dexieBackend } from '@/persistence/dexie-backend'
 import { createFormWithArchiveAttachments, deleteForm } from '@/persistence/forms-repo'
 import { createMemoryBackend } from '@/persistence/memory-backend'
 import { gatherArchiveForms } from '@/persistence/workspace-io'

@@ -40,7 +40,8 @@ describe('localeOptions', () => {
     expect(SUPPORTED_LOCALES.en).toBe('English')
     expect(SUPPORTED_LOCALES.fr).toBe('Français')
     expect(SUPPORTED_LOCALES.es).toBe('Español')
-    // availableLocales is alphabetically sorted by vue-i18n.
+    // fr/es are lazy-loaded (never registered at this point) yet still listed:
+    // localeOptions() always offers every SUPPORTED_LOCALES code, sorted.
     expect(localeOptions()).toEqual([
       { code: 'en', label: 'English' },
       { code: 'es', label: 'Español' },

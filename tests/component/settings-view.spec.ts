@@ -75,7 +75,8 @@ beforeEach(async () => {
 
 afterEach(() => {
   // A language test may have switched the shared i18n instance away from en.
-  setLocale('en')
+  // 'en' has no lazy loader, so this resolves synchronously — no await needed.
+  void setLocale('en')
 })
 
 describe('SettingsView', () => {

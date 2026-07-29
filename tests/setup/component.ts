@@ -5,6 +5,12 @@ import PrimeVue from 'primevue/config'
 import Tooltip from 'primevue/tooltip'
 
 import { i18n } from '@/i18n'
+import { setPersistenceBackend } from '@/persistence/backend'
+import { dexieBackend } from '@/persistence/dexie-backend'
+
+// In the app the Dexie default is installed by main.ts's boot (it's a lazy
+// chunk there); tests get it globally so stores can reach repos directly.
+setPersistenceBackend(dexieBackend)
 
 // Pinia is NOT registered here: each test creates its own instance with
 // setActivePinia and passes it via mount options so component and test share

@@ -1,5 +1,6 @@
-import { dexieBackend, setPersistenceBackend } from '@/persistence/backend'
+import { setPersistenceBackend } from '@/persistence/backend'
 import { db } from '@/persistence/db'
+import { dexieBackend } from '@/persistence/dexie-backend'
 import { createMemoryBackend } from '@/persistence/memory-backend'
 
 export interface BackendCase {

@@ -49,6 +49,11 @@ jobs:
       - name: Run e2e tests
         run: pnpm test:e2e
 
+      # dist/ from the webServer's build is still on disk at this point —
+      # gate the render-blocking critical path (size + no eager web-forms).
+      - name: Check bundle budget
+        run: pnpm check:bundle
+
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4

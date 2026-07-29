@@ -1,15 +1,30 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
+import { defineAsyncComponent, h, type FunctionalComponent } from 'vue'
 import { useRouter } from 'vue-router'
 
-import SaveIndicator from '@/components/shell/SaveIndicator.vue'
 import ToolbarSeparator from '@/components/shell/ToolbarSeparator.vue'
 import { useAppI18n } from '@/i18n'
 import { useEditorStore } from '@/stores/editor'
 import { useEmbedStore } from '@/stores/embed'
-import { useFormStore } from '@/stores/form'
 
-const form = useFormStore()
+// Empty stand-in that keeps the `save-indicator` testid/class in the DOM
+// while the real indicator's chunk (which pulls in the form store, and with
+// it the whole editor core) is still loading. In practice that chunk is
+// already loaded by the time the editor header mounts, so the placeholder is
+// rarely visible.
+const SaveIndicatorPlaceholder: FunctionalComponent = () =>
+  h('span', { class: 'save-indicator', 'data-testid': 'save-indicator' })
+
+// Lazy: the form store (and the editor core behind it) must not be part of
+// AppHeader's static import graph — see SaveIndicator.vue, which reads the
+// store itself.
+const SaveIndicator = defineAsyncComponent({
+  loader: () => import('@/components/shell/SaveIndicator.vue'),
+  loadingComponent: SaveIndicatorPlaceholder,
+  delay: 0,
+})
+
 const editor = useEditorStore()
 // Embed mode has no library to go back to — the host owns form storage.
 const embed = useEmbedStore()
@@ -17,7 +32,10 @@ const router = useRouter()
 const { t } = useAppI18n()
 
 const backToLibrary = async (): Promise<void> => {
-  await form.close()
+  // Lazy for the same reason as SaveIndicator above: keeps the form store
+  // out of AppHeader's static graph.
+  const { useFormStore } = await import('@/stores/form')
+  await useFormStore().close()
   await router.push({ name: 'library' })
 }
 </script>
@@ -36,7 +54,7 @@ const backToLibrary = async (): Promise<void> => {
         @click="backToLibrary"
       />
       <slot name="title-actions" />
-      <SaveIndicator :state="form.saveState" />
+      <SaveIndicator />
     </div>
     <div class="app-header-right">
       <slot name="actions" />

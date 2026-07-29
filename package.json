@@ -32,7 +32,8 @@
     "test:e2e": "playwright test",
     "verify:webforms": "node scripts/verify-webforms-bundle.mjs",
     "generate:theme": "node scripts/generate-theme-css.mjs",
-    "audit:a11y": "node scripts/a11y-audit.mjs"
+    "audit:a11y": "node scripts/a11y-audit.mjs",
+    "check:bundle": "node scripts/check-bundle-budget.mjs"
   },
   "dependencies": {
     "@fontsource/roboto": "^5.2.0",
