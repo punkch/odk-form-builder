@@ -27,47 +27,65 @@ offline app on field laptops and tablets.
 
 - **Real preview, not a mock** — the same engine ODK Central serves renders
   your form as you build it, including relevance logic, constraints,
-  cascading selects, external datasets and translations. Test-fill and
-  inspect the submission XML without anything leaving the browser.
+  cascading selects, external datasets, entities and translations. The
+  preview follows the question you're editing, switches between device
+  presets, and lets you test-fill and inspect the submission XML without
+  anything leaving the browser.
 - **pyxform-parity XForm generation** — the serializer's output is golden-
   tested against [pyxform](https://github.com/XLSForm/pyxform) 4.5.0
-  (`tests/golden/`), entities included, so generated forms behave exactly
-  like XLSForm-converted ones.
+  (`tests/golden/`) — entities, multilingual itext and label media
+  included — so generated forms behave exactly like XLSForm-converted
+  ones.
 - **Native XLSForm engine** — imports and exports .xlsx workbooks fully
-  client-side; the first in-browser XLSForm converter (everything else in
-  the ecosystem calls pyxform on a server).
+  client-side, with row-level import reports telling you exactly what was
+  read and what was skipped; the first in-browser XLSForm converter
+  (everything else in the ecosystem calls pyxform on a server).
 - **Lossless round-trips** — unknown columns, custom bind/body attributes
   and unrecognized XForm fragments are preserved through import → edit →
-  export.
+  export; forms travel as XForm XML, XLSForm .xlsx, or either bundled in
+  a ZIP with every media/CSV attachment — and the same bundle imports
+  back, attachments and all.
 - **Form logic without syntax** — a visual condition builder for relevance
-  and constraints, with the raw expression editor always one click away.
+  and constraints with ALL/ANY groups, constraint presets (ranges, phone,
+  email…) and calculation templates, with the raw expression editor
+  always one click away; a live problems panel with click-to-navigate
+  catches broken references and expressions before your enumerators do.
 - **Multilingual forms without the footguns** — labels, hints, guidance,
   validation messages, choice labels and per-language media in one
   translations grid; a monolingual form's text simply becomes the first
   language you add — no "Default" pseudo-language that ODK clients would
-  never show.
+  never show — and mixed-language imports auto-merge, with leftovers kept
+  visible until you resolve them.
 - **Label media & image annotation** — attach an image (with zoomable
-  big-image), audio or video to any question or choice label, and give
+  big-image), audio or video to any question, group or choice label —
+  shared across languages by default, overridable per language — and give
   image questions a draw-on-top template; the attachment manager flags
-  missing files and a rename updates every reference in one step.
+  missing files, previews images and datasets in place, and a rename
+  updates every reference in one undo step.
 - **Direct to ODK Central, opt-in** — publish drafts (definition +
   attachments) to any number of Central servers, track every destination
-  with a local freshness check and one-click re-publish, and import
-  forms back — even never-published drafts — without leaving the builder. It stays invisible
-  until you add a server; credentials are encrypted at rest in a
-  passphrase-derived vault that never leaves your device, and every
-  connection is manual — no background sync, no telemetry. Requires a
-  one-time [CORS setup](#connecting-to-odk-central-cors) on (or in front
-  of) your Central server.
+  with a local freshness check and one-click re-publish, and import forms
+  back — even never-published drafts — without leaving the builder. It
+  stays invisible until you add a server; credentials are encrypted at
+  rest in a passphrase-derived vault that never leaves your device, and
+  every connection is manual — no background sync, no telemetry. Requires
+  a one-time [CORS setup](#connecting-to-odk-central-cors) on (or in
+  front of) your Central server.
 - **Works fully offline** — installable PWA that precaches the entire app
-  (preview engine included) and updates itself from the hosting site.
+  (preview engine included) and updates itself from the hosting site; a
+  one-file workspace backup carries your whole library — forms,
+  attachments, templates, Central config and preferences — between
+  machines.
 - **Embeddable** — host applications can drive the builder in an iframe
   over a postMessage API: load a form, let the user edit, get the full
-  configuration (attachments included) back.
+  configuration (attachments included) back — with theme, accent,
+  contrast and language under the host's control.
 - **Accessible, themeable, in your language** — English, French and
-  Spanish UI, light/dark/system color schemes with six accents, and a
-  WCAG-AAA high-contrast mode — all styling the builder and the live
-  preview as one.
+  Spanish UI aligned with ODK's own terminology, light/dark/system color
+  schemes with six accents, a WCAG-AAA high-contrast mode, and WCAG-AA
+  conformance by default — contrast-clamped accents and a screen-reader-
+  friendly UI, held to zero violations by an automated axe audit — all
+  styling the builder and the live preview as one.
 
 ## Features
 
